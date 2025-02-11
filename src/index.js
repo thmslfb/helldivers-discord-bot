@@ -11,6 +11,7 @@ new CommandKit({
   devGuildIds: [process.env.GUILD_ID],
   devUserIds: [process.env.USER_ID],
   devRoleIds: [process.env.ROLE_ID],
+  eventsPath: `${__dirname}/events`,
 });
 
 client.login(process.env.TOKEN);
