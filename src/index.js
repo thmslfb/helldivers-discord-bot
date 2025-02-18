@@ -12,6 +12,8 @@ new CommandKit({
   devUserIds: [process.env.USER_ID],
   devRoleIds: [process.env.ROLE_ID],
   eventsPath: `${__dirname}/events`,
+  commandsPath: `${__dirname}/commands`,
+  bulkRegister: true,
 });
 
 client.login(process.env.TOKEN);
