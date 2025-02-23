@@ -1,19 +1,10 @@
-const dispatches = require('../events/ready/dispatches');
-const newsfeed = require('../events/ready/newsfeed');
-
-let isFirstRun = {
-  dispatches: true,
-  newsfeed: true,
-};
+const dispatches = require('./dispatches');
+const newsfeed = require('./newsfeed');
 
 const scheduleDispatches = async (client) => {
   console.log(`📡 Dispatches triggered at ${new Date().toLocaleTimeString()}`);
   try {
-    if (isFirstRun.dispatches) {
-      isFirstRun.dispatches = false;
-    } else {
-      await dispatches(client);
-    }
+    await dispatches(client);
   } catch (error) {
     console.error(`❌ Error in dispatches: ${error.message}`);
   }
@@ -23,11 +14,7 @@ const scheduleDispatches = async (client) => {
 const scheduleNewsfeed = async (client) => {
   console.log(`📢 Newsfeed triggered at ${new Date().toLocaleTimeString()}`);
   try {
-    if (isFirstRun.newsfeed) {
-      isFirstRun.newsfeed = false;
-    } else {
-      await newsfeed(client);
-    }
+    await newsfeed(client);
   } catch (error) {
     console.error(`❌ Error in newsfeed: ${error.message}`);
   }

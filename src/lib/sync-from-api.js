@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { EmbedBuilder } = require('discord.js');
-const pool = require('./db');
+const pool = require('../utils/db');
 
 const syncFromApi = async (client, idColumn, endpoint, dbTable, formatData) => {
   let lastId = null;
@@ -21,9 +21,13 @@ const syncFromApi = async (client, idColumn, endpoint, dbTable, formatData) => {
 
   const saveLastId = async (id) => {
     try {
-      await pool.query(`INSERT INTO ${dbTable} (${idColumn}) VALUES ($1)`, [
-        id,
-      ]);
+      await pool.query(
+        `INSERT INTO ${dbTable} (id, ${idColumn}, updated_at)
+         VALUES (1, $1, NOW())
+         ON CONFLICT (id) 
+         DO UPDATE SET ${idColumn} = EXCLUDED.${idColumn}, updated_at = NOW()`,
+        [id]
+      );
     } catch (error) {
       console.error(`Error saving ${idColumn}: ${error.message}`);
     }
