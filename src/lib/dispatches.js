@@ -1,4 +1,4 @@
-const { syncFromApi } = require('../../utils/sync-from-api');
+const { syncFromApi } = require('./sync-from-api');
 
 module.exports = async (client) => {
   await syncFromApi(
