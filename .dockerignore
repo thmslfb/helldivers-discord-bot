@@ -1,0 +1,24 @@
+# Dependencies  
+node_modules/  
+npm-debug.log  
+yarn-error.log  
+pnpm-debug.log  
+
+# Git  
+.git/  
+.gitignore  
+
+# Sensitive files  
+.env*  
+
+# Logs  
+logs/  
+*.log  
+
+# Docker  
+.dockerignore  
+Dockerfile.*  
+
+# System files  
+.DS_Store  
+Thumbs.db  
