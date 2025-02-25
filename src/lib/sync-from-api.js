@@ -2,7 +2,14 @@ require('dotenv').config();
 const { EmbedBuilder } = require('discord.js');
 const pool = require('../utils/db');
 
-const syncFromApi = async (client, idColumn, endpoint, dbTable, formatData) => {
+const syncFromApi = async (
+  client,
+  idColumn,
+  endpoint,
+  dbTable,
+  formatData,
+  fetchType = 'first'
+) => {
   let lastId = null;
 
   const loadLastId = async () => {
@@ -54,22 +61,30 @@ const syncFromApi = async (client, idColumn, endpoint, dbTable, formatData) => {
     }
 
     const data = await response.json();
-    const latestItem = data[0];
+    const selectedItem = fetchType === 'last' ? data[data.length - 1] : data[0];
 
-    if (lastId !== latestItem.id) {
-      await saveLastId(latestItem.id);
-      lastId = latestItem.id;
+    if (
+      fetchType === 'first'
+        ? lastId !== selectedItem.id
+        : lastId < selectedItem.id
+    ) {
+      await saveLastId(selectedItem.id);
+      lastId = selectedItem.id;
 
-      const { title, description, url, color } = formatData(latestItem);
+      const { title, description, url, footer, color } =
+        formatData(selectedItem);
 
       const embed = new EmbedBuilder()
         .setTitle(title)
         .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Message #${latestItem.id}` });
+        .setColor(color);
 
       if (url) {
         embed.setURL(url);
+      }
+
+      if (footer) {
+        embed.setFooter({ text: `Message #${selectedItem.id}` });
       }
 
       const channel = client.channels.cache.get(
