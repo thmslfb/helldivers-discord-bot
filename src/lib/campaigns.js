@@ -8,16 +8,7 @@ module.exports = async (client) => {
     'last_campaigns',
     (item) => {
       const planetName = item.planet.name;
-
-      const event =
-        item.planet.event.eventType === 1 ? 'Defend' : 'Repel the invasion on';
-
-      const planetHealth = item.planet.event.maxHealth;
-      const invasionLevel = Math.floor(planetHealth / 50000);
-
-      const timeRemaining = Math.floor(
-        new Date(item.planet.event.endTime).getTime() / 1000
-      );
+      const eventData = item.planet.event;
 
       const factionIcons = {
         Illuminate: '<:illuminate:1344047206394495051>',
@@ -25,17 +16,37 @@ module.exports = async (client) => {
         Terminids: '<:terminid:1344048588686102619>',
       };
 
-      const factionIcon = factionIcons[item.planet.event.faction];
+      const factionIcon = eventData
+        ? factionIcons[item.planet.event.faction]
+        : factionIcons[item.planet.currentOwner];
+
+      const event = !eventData
+        ? `⚔️ Liberate ${planetName} ${factionIcon}`
+        : `🛡️ ${
+            eventData.eventType === 1 ? 'Defend' : 'Repel the invasion on'
+          } ${planetName} ${factionIcon}`;
+
+      const planetHealth =
+        eventData && eventData.maxHealth ? eventData.maxHealth : 0;
+      const invasionLevel = Math.floor(planetHealth / 50000);
+
+      const timeRemaining = eventData
+        ? Math.floor(new Date(item.planet.event.endTime).getTime() / 1000)
+        : null;
+
+      const description = eventData
+        ? `**New campaigns**
+${event}
+>>> -# Invasion level **${invasionLevel}**
+*Ends <t:${timeRemaining}:R>*`
+        : `**New campaigns**
+${event}`;
 
       return {
         title:
           '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-        description: `**New campaigns**
-🛡️ ${event} ${planetName} ${factionIcon}
->>> -# Invasion level **${invasionLevel}**
-*Ends <t:${timeRemaining}:R>*`,
+        description,
         url: null,
-        footer: null,
         color: 'ed4245',
       };
     },

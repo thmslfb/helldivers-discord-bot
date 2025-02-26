@@ -71,7 +71,7 @@ const syncFromApi = async (
       await saveLastId(selectedItem.id);
       lastId = selectedItem.id;
 
-      const { title, description, url, footer, color } =
+      const { title, description, url, messageId, color } =
         formatData(selectedItem);
 
       const embed = new EmbedBuilder()
@@ -83,8 +83,8 @@ const syncFromApi = async (
         embed.setURL(url);
       }
 
-      if (footer) {
-        embed.setFooter({ text: `Message #${selectedItem.id}` });
+      if (messageId) {
+        embed.setFooter({ text: `Message #${messageId}` });
       }
 
       const channel = client.channels.cache.get(
