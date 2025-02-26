@@ -19,6 +19,7 @@ module.exports = async (client) => {
         title: item.title,
         description: cleanMessage,
         url: item.url,
+        messageId: item.id,
         color: '607d8b',
       };
     }
