@@ -21,10 +21,10 @@ module.exports = async (client) => {
         : factionIcons[item.planet.currentOwner];
 
       const event = !eventData
-        ? `⚔️ Liberate ${planetName} ${factionIcon}`
+        ? `⚔️ Liberate **${planetName}** ${factionIcon}`
         : `🛡️ ${
             eventData.eventType === 1 ? 'Defend' : 'Repel the invasion on'
-          } ${planetName} ${factionIcon}`;
+          } **${planetName}** ${factionIcon}`;
 
       const planetHealth =
         eventData && eventData.maxHealth ? eventData.maxHealth : 0;
