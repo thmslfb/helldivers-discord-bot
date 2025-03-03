@@ -42,7 +42,7 @@ module.exports = async (client) => {
               return {
                 title:
                   '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-                description: `**Campaign victories**\n <:victory:1345739176473006122> ${currentPlanet.name} has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
+                description: `**Campaign victories**\n <:victory:1345739176473006122> **${currentPlanet.name}** has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
                 color: 'ed4245',
               };
             } else if (previousPlanet.currentOwner === 'Humans') {
@@ -89,7 +89,7 @@ module.exports = async (client) => {
               return {
                 title:
                   '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-                description: `**Invasions**\n The invasion on ${currentPlanet.name} has ended ${humanIcon}\n
+                description: `**Invasions**\n The invasion on **${currentPlanet.name}** has ended ${humanIcon}
 -# The Helldivers have __successfully pushed back the ${enemyFaction}__ ${enemyIcon} with ${hoursRemaining} hours remaining`,
                 color: 'ed4245',
               };
@@ -98,20 +98,21 @@ module.exports = async (client) => {
             return {
               title:
                 '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-              description: `**Invasions**\n The ${eventType} on ${currentPlanet.name} has ended ${humanIcon}\n
+              description: `**Invasions**\n The ${eventType} on **${currentPlanet.name}** has ended ${humanIcon}
 -# The ${enemyFaction} have left and __no territory has changed ownership__ ${enemyIcon}`,
               color: 'ed4245',
             };
           }
         }
 
+        // This block handles the rare case where the planet owner changes without an event
         if (
           previousPlanet.currentOwner !== currentPlanet.currentOwner &&
           !hadEvent &&
           !hasEvent
         ) {
           console.log(
-            `Changement de propriétaire sans événement pour ${currentPlanet.name}: ${previousPlanet.currentOwner} -> ${currentPlanet.currentOwner}`
+            `Owner change without event for ${currentPlanet.name}: ${previousPlanet.currentOwner} -> ${currentPlanet.currentOwner}`
           );
 
           const enemyIcon = factionIcons[previousPlanet.currentOwner] || '';
@@ -123,7 +124,7 @@ module.exports = async (client) => {
             return {
               title:
                 '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-              description: `**Campaign victories**\n <:victory:1345739176473006122> ${currentPlanet.name} has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
+              description: `**Campaign victories**\n <:victory:1345739176473006122> **${currentPlanet.name}** has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
               color: 'ed4245',
             };
           } else if (
@@ -146,7 +147,7 @@ module.exports = async (client) => {
         return null;
       } catch (error) {
         console.error(
-          `Erreur lors du traitement de la planète ${
+          `Error processing planet ${
             currentPlanet?.name || currentPlanet?.index
           }: ${error}`
         );
