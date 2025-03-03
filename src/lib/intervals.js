@@ -47,8 +47,8 @@ const startIntervals = (client) => {
   console.log('⏳ Intervals started');
   scheduleDispatches(client);
   scheduleNewsfeeds(client);
-  scheduleCampaigns(client);
-  setTimeout(() => schedulePlanets(client), 200); // Start planets 200 ms after campaigns
+  schedulePlanets(client);
+  setTimeout(() => scheduleCampaigns(client), 200); // Start campaigns 200 ms after planets
 };
 
 module.exports = { startIntervals };
