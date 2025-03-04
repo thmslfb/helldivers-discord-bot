@@ -5,6 +5,10 @@ const pool = require('../utils/db');
 
 const lastIdCache = {};
 
+let notificationQueue = [];
+let notificationTimer = null;
+const notificationDelay = 1000;
+
 const getLastId = async (dbTable, idColumn) => {
   if (lastIdCache[dbTable]) {
     console.log(
@@ -67,6 +71,68 @@ const syncFromApi = async (
     } catch (error) {
       console.error(`Error getting all previous items: ${error.message}`);
       return {};
+    }
+  };
+
+  const queueNotification = (notificationData) => {
+    if (!notificationData) return;
+
+    notificationQueue.push(notificationData);
+
+    if (!notificationTimer) {
+      notificationTimer = setTimeout(() => {
+        sendQueuedNotifications(client);
+      }, notificationDelay);
+    }
+  };
+
+  const sendQueuedNotifications = async (client) => {
+    try {
+      if (notificationQueue.length === 0) {
+        notificationTimer = null;
+        return;
+      }
+
+      console.log(
+        `📣 Processing ${notificationQueue.length} queued notifications...`
+      );
+
+      if (notificationQueue.length === 1) {
+        await sendNotification(notificationQueue[0]);
+      } else {
+        const groupedNotifications = {};
+
+        for (const notification of notificationQueue) {
+          if (!groupedNotifications[notification.title]) {
+            groupedNotifications[notification.title] = {
+              title: notification.title,
+              description: [notification.description],
+              color: notification.color,
+            };
+          } else {
+            groupedNotifications[notification.title].description.push(
+              notification.description
+            );
+          }
+        }
+
+        for (const key in groupedNotifications) {
+          const group = groupedNotifications[key];
+
+          await sendNotification({
+            title: group.title,
+            description: group.description.join('\n\n'),
+            color: group.color,
+          });
+        }
+      }
+
+      notificationQueue = [];
+      notificationTimer = null;
+    } catch (error) {
+      console.error(`Error sending queued notifications: ${error.message}`);
+      notificationQueue = [];
+      notificationTimer = null;
     }
   };
 
@@ -156,7 +222,7 @@ const syncFromApi = async (
           try {
             const notificationData = await formatData(item, previousItem);
             if (notificationData) {
-              notificationPromises.push(sendNotification(notificationData));
+              queueNotification(notificationData);
             }
           } catch (formatError) {
             console.error(
@@ -180,13 +246,6 @@ const syncFromApi = async (
         console.log(
           `🤖 Updated ${changedCount} items, skipped ${unchangedCount} items`
         );
-      }
-
-      if (notificationPromises.length > 0) {
-        console.log(
-          `📣 Sending ${notificationPromises.length} notifications...`
-        );
-        await Promise.all(notificationPromises);
       }
     } catch (error) {
       console.error(`Error batch saving data: ${error.message}`);
@@ -221,7 +280,7 @@ const syncFromApi = async (
         await saveLastId(selectedItem.id);
 
         const notificationData = await formatData(selectedItem);
-        await sendNotification(notificationData);
+        queueNotification(notificationData);
       }
     }
   } catch (error) {
