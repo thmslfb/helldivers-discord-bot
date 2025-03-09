@@ -47,16 +47,42 @@ class KeywordCache {
 
   async updateDetectionPatterns() {
     return [
-      this.createPatternFromCategories('subject', 'negative_adjectives'),
-      this.createPatternFromCategories('subject', 'negative_actions'),
-      this.createPatternFromCategories('enemies', 'suspicious_positive'),
+      this.createPatternFromCategories('subject', 'negative_adjectives', 5),
+      this.createPatternFromCategories('subject', 'negative_actions', 5),
+      this.createPatternFromCategories('enemies', 'suspicious_positive', 5),
     ];
   }
 
-  createPatternFromCategories(subjectCategory, attributeCategory) {
-    const subjectWords = this.keywords[subjectCategory]?.join('|') || '';
-    const attributeWords = this.keywords[attributeCategory]?.join('|') || '';
-    return new RegExp(`(?=.*(${subjectWords}))(?=.*(${attributeWords}))`, 'i');
+  createPatternFromCategories(subjectCategory, attributeCategory, maxDistance) {
+    const subjectWords = this.keywords[subjectCategory] || [];
+    const attributeWords = this.keywords[attributeCategory] || [];
+
+    return {
+      test: (content) => {
+        const wordArray = content.toLowerCase().split(/\s+/);
+
+        const subjectPositions = [];
+        const attributePositions = [];
+
+        wordArray.forEach((word, index) => {
+          if (subjectWords.some((keyword) => word.includes(keyword))) {
+            subjectPositions.push(index);
+          }
+          if (attributeWords.some((keyword) => word.includes(keyword))) {
+            attributePositions.push(index);
+          }
+        });
+
+        for (const subjectPos of subjectPositions) {
+          for (const attributePos of attributePositions) {
+            if (Math.abs(subjectPos - attributePos) <= maxDistance) {
+              return true;
+            }
+          }
+        }
+        return false;
+      },
+    };
   }
 
   testMessage(content) {
