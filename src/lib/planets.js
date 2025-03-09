@@ -42,16 +42,20 @@ module.exports = async (client) => {
               return {
                 title:
                   '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-                description: `**Campaign victories**\n <:victory:1345739176473006122> **${currentPlanet.name}** has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
+                description: `**Campaign victories**
+<:victory:1345739176473006122> **${currentPlanet.name}** has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
                 color: 'ed4245',
               };
             } else if (previousPlanet.currentOwner === 'Humans') {
               return {
                 title:
                   '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-                description: `**Planet lost**\n 💀 **${
-                  currentPlanet.name
-                }** has been lost to the ${currentPlanet.currentOwner} ${
+                description: `**Planet lost**
+💀 **${currentPlanet.name}** has been lost to the ${
+                  currentPlanet.currentOwner
+                } ${factionIcons[currentPlanet.currentOwner] || ''} \n
+**New campaigns**
+⚔️ Liberate **${currentPlanet.name}** ${
                   factionIcons[currentPlanet.currentOwner] || ''
                 }`,
                 color: 'ed4245',
@@ -65,7 +69,8 @@ module.exports = async (client) => {
               return {
                 title:
                   '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-                description: `**Campaign victories**\n <:victory:1345739176473006122> **${currentPlanet.name}** has been successfully defended`,
+                description: `**Campaign victories**
+<:victory:1345739176473006122> **${currentPlanet.name}** has been successfully defended`,
                 color: 'ed4245',
               };
             }
@@ -89,7 +94,8 @@ module.exports = async (client) => {
               return {
                 title:
                   '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-                description: `**Invasions**\n The invasion on **${currentPlanet.name}** has ended ${humanIcon}
+                description: `**Invasions**
+The invasion on **${currentPlanet.name}** has ended ${humanIcon}
 -# The Helldivers have __successfully pushed back the ${enemyFaction}__ ${enemyIcon} with ${hoursRemaining} hours remaining`,
                 color: 'ed4245',
               };
@@ -98,7 +104,8 @@ module.exports = async (client) => {
             return {
               title:
                 '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-              description: `**Invasions**\n The ${eventType} on **${currentPlanet.name}** has ended ${humanIcon}
+              description: `**Invasions**
+The ${eventType} on **${currentPlanet.name}** has ended ${humanIcon}
 -# The ${enemyFaction} have left and __no territory has changed ownership__ ${enemyIcon}`,
               color: 'ed4245',
             };
@@ -124,7 +131,8 @@ module.exports = async (client) => {
             return {
               title:
                 '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-              description: `**Campaign victories**\n <:victory:1345739176473006122> **${currentPlanet.name}** has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
+              description: `**Campaign victories**
+<:victory:1345739176473006122> **${currentPlanet.name}** has been liberated from the ${previousPlanet.currentOwner} ${enemyIcon}`,
               color: 'ed4245',
             };
           } else if (
@@ -134,9 +142,12 @@ module.exports = async (client) => {
             return {
               title:
                 '<:left_banner:1344035791483174955> Galactic War Updates <:right_banner:1344035811053797426>',
-              description: `**Planet lost**\n 💀 **${
-                currentPlanet.name
-              }** has been lost to the ${currentPlanet.currentOwner} ${
+              description: `**Planet lost**
+💀 **${currentPlanet.name}** has been lost to the ${
+                currentPlanet.currentOwner
+              } ${factionIcons[currentPlanet.currentOwner] || ''} \n
+**New campaigns**
+⚔️ Liberate **${currentPlanet.name}** ${
                 factionIcons[currentPlanet.currentOwner] || ''
               }`,
               color: 'ed4245',
