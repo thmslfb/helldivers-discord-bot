@@ -23,25 +23,32 @@ const scheduleNewsfeeds = async (client) => {
   setTimeout(() => scheduleNewsfeeds(client), 10 * 60 * 1000); // 10 minutes
 };
 
-const schedulePlanetsAndCampaigns = async (client) => {
-  setTimeout(() => schedulePlanetsAndCampaigns(client), 10 * 60 * 1000); // 10 minutes
-
-  console.log(`🪐🛡️ Combined update at ${new Date().toLocaleTimeString()}`);
+const schedulePlanets = async (client) => {
+  console.log(`🪐 Planets triggered at ${new Date().toLocaleTimeString()}`);
   try {
-    console.log(`🪐 Planets triggered at ${new Date().toLocaleTimeString()}`);
     await planets(client);
-    console.log(`🛡️ Campaigns triggered at ${new Date().toLocaleTimeString()}`);
+  } catch (error) {
+    console.error(`❌ Error in planets: ${error.message}`);
+  }
+  setTimeout(() => schedulePlanets(client), 10 * 60 * 1000); // 10 minutes
+};
+
+const scheduleCampaigns = async (client) => {
+  console.log(`🛡️ Campaigns triggered at ${new Date().toLocaleTimeString()}`);
+  try {
     await campaigns(client);
   } catch (error) {
-    console.error(`❌ Error in planets-campaigns sequence: ${error.message}`);
+    console.error(`❌ Error in campaigns: ${error.message}`);
   }
+  setTimeout(() => scheduleCampaigns(client), 10 * 60 * 1000); // 10 minutes
 };
 
 const startIntervals = (client) => {
   console.log('⏳ Intervals started');
   scheduleDispatches(client);
   scheduleNewsfeeds(client);
-  schedulePlanetsAndCampaigns(client);
+  schedulePlanets(client);
+  scheduleCampaigns(client);
 };
 
 module.exports = { startIntervals };
