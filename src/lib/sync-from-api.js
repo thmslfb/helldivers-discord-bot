@@ -86,7 +86,7 @@ const syncFromApi = async (
     }
   };
 
-  const sendQueuedNotifications = async (client) => {
+  const sendQueuedNotifications = async () => {
     try {
       if (notificationQueue.length === 0) {
         notificationTimer = null;
@@ -180,7 +180,6 @@ const syncFromApi = async (
       const values = [];
       const params = [];
       let paramCounter = 1;
-      const notificationPromises = [];
       let unchangedCount = 0;
       let changedCount = 0;
 
