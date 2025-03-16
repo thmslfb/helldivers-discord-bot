@@ -1,0 +1,67 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deployment'
+        required: false
+        default: 'Manual trigger'
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Deploy to Production
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: production_environment
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          command_timeout: '5m'
+          script: |
+            set -e
+            echo "🔄 Starting deployment process at $(date)"
+
+            if ! command -v docker compose &> /dev/null; then
+                echo "🚨 Docker Compose is not installed. Please install it before running this script."
+                exit 1
+            fi
+
+            cd ~/discord-bot
+
+            echo "📥 Pulling latest code from repository..."
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "📋 Changes in this deployment:"
+            git log -1 --pretty=format:"%h - %an: %s"
+
+            echo "🛑 Stopping current containers..."
+            docker compose down
+
+            echo "🐳 Rebuilding and restarting containers..."
+            docker compose up --build -d
+
+            echo "✅ Checking container status..."
+            docker compose ps
+
+            echo "📜 Checking logs for errors..."
+            docker compose logs --tail=50
+
+            echo "🧹 Cleaning up old Docker images..."
+            docker image prune -f
+
+            echo "🚀 Deployment completed successfully at $(date)"
