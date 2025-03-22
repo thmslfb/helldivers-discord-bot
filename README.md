@@ -7,6 +7,7 @@ A Discord bot for Helldivers 2 players, delivering real-time game updates, war s
 ## ✨ Features
 
 - 🔔 **Real-time war status updates** from Helldivers 2
+- 🚨 **Automated notifications** for planet losses, victories, and major events in designated channels
 - 🗺️ **Planet tracking** with liberation progress
 - 📊 **Statistical reporting** on community efforts
 - 🏆 **Major Order notifications** and completion tracking
@@ -123,6 +124,21 @@ Coming soon:
 - War status tracking
 - Planet information
 - And many others!
+
+> **Note:** Additional commands are under active development and will be released in future updates.
+
+## Automated Notifications
+
+The bot sends automated messages to your configured war-updates channel when:
+
+- 🔴 A planet is lost to enemy forces
+- 🟢 A planet is liberated by Super Earth forces
+- 🎖️ Major Orders are completed or failed
+- 🌍 War state changes significantly
+- 📝 Game patches and updates are released
+- 🎮 New Warbonds become available
+
+> **Note:** Some notification features are still in development and will be rolled out in future updates.
 
 ## 📜 License
 
