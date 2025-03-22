@@ -1,4 +1,4 @@
-# Super Earth Broadcast <img src="https://cdn.discordapp.com/app-icons/1338127626564407306/d783f5d249379c70ac4a38e59c668574.png?size=128" width="36" height="36" style="border-radius: 10%; vertical-align: middle; position: relative; top: -2px; margin-left: 8px;" alt="Super Earth Broadcast Logo">
+# Super Earth Broadcast &nbsp;<img src="https://res.cloudinary.com/dyq2t6mgd/image/upload/v1742646117/bot-logo-md_agljmc.png" width="36" height="36" align="top" alt="Super Earth Broadcast Logo">
 
 A Discord bot for Helldivers 2 players, delivering real-time game updates, war status tracking, and community features.
 
