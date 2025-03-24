@@ -2,31 +2,31 @@ require('dotenv').config();
 const { EmbedBuilder } = require('discord.js');
 const { fetchFromApi } = require('../utils/fetch-helper');
 const pool = require('../utils/db');
-
-const lastIdCache = {};
+const { cacheGet, cacheSet, cacheDelete } = require('../utils/cache-helper');
 
 let notificationQueue = [];
 let notificationTimer = null;
 const notificationDelay = 1000;
 
 const getLastId = async (dbTable, idColumn) => {
-  if (lastIdCache[dbTable]) {
-    console.log(
-      `🗂️ Using cached lastId for ${dbTable}: ${lastIdCache[dbTable]}`
-    );
-    return lastIdCache[dbTable];
-  }
-
   try {
-    const result = await pool.query(
-      `SELECT ${idColumn} FROM ${dbTable} WHERE id = 1`
-    );
+    const cachedLastId = await cacheGet(`${dbTable}:lastId`);
 
-    const lastId = result.rows.length > 0 ? result.rows[0][idColumn] : 0;
-    lastIdCache[dbTable] = lastId;
-    console.log(`✅ Fetched lastId for ${dbTable}: ${lastId}`);
+    if (cachedLastId) {
+      console.log(`⚡ Using cached lastId for ${dbTable}: ${cachedLastId}`);
+      return cachedLastId;
+    } else {
+      const result = await pool.query(
+        `SELECT ${idColumn} FROM ${dbTable} WHERE id = 1`
+      );
 
-    return lastId;
+      const lastId = result.rows.length > 0 ? result.rows[0][idColumn] : 0;
+
+      await cacheSet(`${dbTable}:lastId`, lastId);
+
+      console.log(`💾 Fetched and cached lastId for ${dbTable}: ${lastId}`);
+      return lastId;
+    }
   } catch (error) {
     console.error(`❌ Error getting lastId for ${dbTable}: ${error.message}`);
     return 0;
@@ -50,7 +50,10 @@ const syncFromApi = async (
          DO UPDATE SET ${idColumn} = EXCLUDED.${idColumn}, updated_at = NOW()`,
         [id]
       );
-      lastIdCache[dbTable] = id;
+
+      await cacheSet(`${dbTable}:lastId`, id);
+
+      console.log(`💾 Updated lastId for ${dbTable}: ${id}`);
     } catch (error) {
       console.error(`Error saving ${idColumn}: ${error.message}`);
     }
@@ -58,18 +61,28 @@ const syncFromApi = async (
 
   const getAllPreviousItems = async () => {
     try {
-      const result = await pool.query(
-        `SELECT ${idColumn}, data FROM ${dbTable}`
-      );
+      const cachedItems = await cacheGet(`${dbTable}:items`);
 
-      const itemsMap = {};
-      for (const row of result.rows) {
-        itemsMap[row[idColumn]] = row.data;
+      if (cachedItems) {
+        console.log(`⚡ Using cached items for ${dbTable}`);
+        return cachedItems;
+      } else {
+        const result = await pool.query(
+          `SELECT ${idColumn}, data FROM ${dbTable}`
+        );
+
+        const itemsMap = {};
+        for (const row of result.rows) {
+          itemsMap[row[idColumn]] = row.data;
+        }
+
+        await cacheSet(`${dbTable}:items`, itemsMap, 300);
+
+        console.log(`💾 Cached items for ${dbTable}`);
+        return itemsMap;
       }
-
-      return itemsMap;
     } catch (error) {
-      console.error(`Error getting all previous items: ${error.message}`);
+      console.error(`❌ Error getting all previous items: ${error.message}`);
       return {};
     }
   };
@@ -245,6 +258,14 @@ const syncFromApi = async (
         console.log(
           `🤖 Updated ${changedCount} items, skipped ${unchangedCount} items`
         );
+
+        if (changedCount > 0) {
+          const cacheKey = `${dbTable}:items`;
+          await cacheDelete(cacheKey);
+          console.log(
+            `🔄 Cache invalidated for ${dbTable} due to detected changes`
+          );
+        }
       }
     } catch (error) {
       console.error(`Error batch saving data: ${error.message}`);
