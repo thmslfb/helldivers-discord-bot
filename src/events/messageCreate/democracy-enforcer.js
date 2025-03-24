@@ -1,11 +1,13 @@
 require('dotenv').config();
 const { EmbedBuilder } = require('discord.js');
 const pool = require('../../utils/db');
+const { cacheGet, cacheSet } = require('../../utils/cache-helper');
 
 class KeywordCache {
   constructor() {
     this.keywords = {};
     this.patterns = [];
+    this.lastCacheTime = 0;
     this.initialize();
   }
 
@@ -15,12 +17,35 @@ class KeywordCache {
 
   async loadCache() {
     try {
-      console.log('Loading democracy enforcement keywords...');
+      const cachedKeywords = await cacheGet('democracy:keywords');
+      const cachedPatterns = await cacheGet('democracy:patterns');
+
+      if (cachedKeywords && cachedPatterns) {
+        this.keywords = cachedKeywords;
+        this.patterns = cachedPatterns;
+        this.lastCacheTime = Date.now();
+        console.log('⚡ Democracy keywords loaded from cache');
+        return;
+      }
+
       this.keywords = await this.getKeywordsByCategory();
       this.patterns = await this.updateDetectionPatterns();
-      console.log('Democracy keywords loaded successfully 🚀');
+
+      await cacheSet('democracy:keywords', this.keywords);
+      await cacheSet('democracy:patterns', this.patterns);
+
+      this.lastCacheTime = Date.now();
+      console.log('💾 Democracy keywords loaded from database and cached');
     } catch (error) {
-      console.error(`Error loading democracy enforcement keywords: ${error}`);
+      console.error(
+        `❌ Error loading democracy enforcement keywords: ${error}`
+      );
+    }
+  }
+
+  async refreshCacheIfNeeded(maxAgeMs = 5 * 60 * 1000) {
+    if (Date.now() - this.lastCacheTime > maxAgeMs) {
+      await this.loadCache();
     }
   }
 
@@ -40,7 +65,7 @@ class KeywordCache {
 
       return keywords;
     } catch (error) {
-      console.error(`Error fetching keywords: ${error}`);
+      console.error(`❌ Error fetching keywords: ${error}`);
       return {};
     }
   }
@@ -85,7 +110,8 @@ class KeywordCache {
     };
   }
 
-  testMessage(content) {
+  async testMessage(content) {
+    await this.refreshCacheIfNeeded();
     return this.patterns.some((pattern) => pattern.test(content));
   }
 }
@@ -97,7 +123,7 @@ module.exports = async (message) => {
 
   const messageContent = message.content.toLowerCase();
 
-  if (cache.testMessage(messageContent)) {
+  if (await cache.testMessage(messageContent)) {
     try {
       await message.delete();
 
@@ -111,7 +137,7 @@ module.exports = async (message) => {
 
       await message.channel.send({ embeds: [embed] });
     } catch (error) {
-      console.error(`Error handling democracy infraction: ${error}`);
+      console.error(`❌ Error handling democracy infraction: ${error}`);
     }
   }
 };
