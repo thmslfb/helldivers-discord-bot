@@ -23,6 +23,7 @@ A Discord bot for Helldivers 2 players, delivering real-time game updates, war s
 - **GitHub Actions** (CI/CD)
 - **ESLint** (Code quality)
 - **PostgreSQL** (Database)
+- **Redis** (Caching)
 
 ## 📋 Prerequisites
 
@@ -30,7 +31,8 @@ Before you begin, ensure you have:
 
 - ✅ Node.js 18+
 - ✅ Discord bot token and application
-- ✅ PostgreSQL database
+- ✅ PostgreSQL database (e.g., [Neon](https://neon.tech/))
+- ✅ Redis instance (e.g., [Upstash](https://upstash.com/))
 - ✅ Docker and Docker Compose (for production)
 - ✅ GitHub account (for CI/CD)
 
@@ -70,6 +72,9 @@ WAR_UPDATES_CHANNEL_ID="channel-for-war-updates"
 
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/helldivers"
+
+# Redis
+REDIS_URL="rediss://:<password>@<upstash-endpoint>:6379"
 
 # API
 DIVEHARDER_API_URL="https://api.diveharder.com/v1"
@@ -164,6 +169,8 @@ Special thanks to these amazing projects:
 
 - [Discord.js](https://discord.js.org/)
 - [Node.js](https://nodejs.org/)
+- [Neon](https://neon.tech/)
+- [Upstash](https://upstash.com/)
 - [Docker](https://www.docker.com/)
 - [GitHub Actions](https://github.com/features/actions)
 - [DiveHarder API](https://github.com/helldivers-2/diveharder_api.py)
