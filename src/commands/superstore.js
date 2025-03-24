@@ -3,6 +3,7 @@ const {
   MessageFlags,
   EmbedBuilder,
 } = require('discord.js');
+const { cacheGet, cacheSet } = require('../utils/cache-helper');
 
 const slotIcons = {
   Head: '<:helmet:1340369850031276092>',
@@ -19,15 +20,32 @@ module.exports = {
     });
 
     try {
-      const response = await fetch(
-        `${process.env.DIVEHARDER_API_URL}/store_rotation`
-      );
+      const cachedData = await cacheGet('superstore:rotation');
 
-      if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
+      let data;
+      if (cachedData) {
+        console.log('⚡ Superstore data loaded from cache');
+        data = cachedData;
+      } else {
+        const response = await fetch(
+          `${process.env.DIVEHARDER_API_URL}/store_rotation`
+        );
+
+        if (!response.ok) {
+          throw new Error(`API returned ${response.status}`);
+        }
+
+        data = await response.json();
+
+        const expiryDate = new Date(`${data.expire_time} GMT`);
+        const secondsUntilExpiry = Math.floor((expiryDate - Date.now()) / 1000);
+
+        const cacheTTL = secondsUntilExpiry > 0 ? secondsUntilExpiry : 3600;
+        await cacheSet('superstore:rotation', data, cacheTTL);
+        console.log(
+          `💾 Superstore data cached for ${Math.floor(cacheTTL / 60)} minutes`
+        );
       }
-
-      const data = await response.json();
 
       if (data.items.every((item) => item.name === 'Unmapped: NO STORE DATA')) {
         await interaction.editReply({
@@ -90,7 +108,7 @@ module.exports = {
         embeds: [embed],
       });
     } catch (error) {
-      console.error(`Error getting Superstore rotation: ${error.message}`);
+      console.error(`❌ Error getting Superstore rotation: ${error.message}`);
       await interaction.editReply({
         content: 'Unable to fetch Superstore rotation. Please try again later.',
       });
